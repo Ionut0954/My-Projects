@@ -1,6 +1,6 @@
-- 👋 Hi, I’m Ionut Manea
+- 👋 Hi, I’m Ionut
 - 👀 I’m interested in learning programming
-- 🌱 I’m currently learning C#
+- 🌱 I’m currently learning Python
 - 📫 How to reach me: [<img src='https://cdn.jsdelivr.net/npm/simple-icons@3.0.1/icons/linkedin.svg' alt='linkedin' height='20'>](https://www.linkedin.com/in/ionut-manea-45132418a//)  
 
 <!---
