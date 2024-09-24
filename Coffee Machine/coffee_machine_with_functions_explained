@@ -1,0 +1,178 @@
+from resources import machine_resources, MENU
+def order_price(order):
+    """
+    Returns the price of the selected coffee order based on the MENU.
+
+    Args:
+        order (str): The type of coffee ("espresso", "latte", or "cappucino").
+
+    Returns:
+        float: The cost of the selected coffee.
+    """
+    return MENU[order]["cost"]
+
+def display_resources():
+    """
+       Displays the current available resources in the coffee machine including
+       water, milk, coffee, and the current profit in money.
+
+       Returns:
+           None
+       """
+    print(f'Water: {machine_resources["water"]}ml\n'
+          f'Milk: {machine_resources["milk"]}ml\n'
+          f'Coffee: {machine_resources["coffee"]}g\n'
+          f'Money: ${profit}\n')
+
+def deduct_resources(order):
+    """
+    Deducts the necessary ingredients from machine_resources when a coffee
+    order is made.
+
+    Args:
+        order (str): The type of coffee ordered ("espresso", "latte", or "cappucino").
+
+    Returns:
+        None
+    """
+    for ingredient in MENU[order]["ingredients"]:
+        machine_resources[ingredient] -= MENU[order]["ingredients"][ingredient]
+
+
+def ingredients_missing(coffee_type, has_resources):
+    """
+       Checks if there are enough ingredients in the coffee machine for the
+       requested coffee. It returns either True if there are enough, or a list
+       of missing ingredients.
+
+       Args:
+           coffee_type (dict): A dictionary of required ingredients for a coffee type.
+           has_resources (bool or list): Boolean indicating whether enough resources
+                                         are available or a list of missing ingredients.
+
+       Returns:
+           bool or list: True if enough resources, False or a list of missing ingredients otherwise.
+       """
+    if type(has_resources) is bool:
+        has_resources = True
+    else:
+        has_resources = []
+    for ingredient in coffee_type:
+        if machine_resources[ingredient] < coffee_type[ingredient]:
+            if type(has_resources) is bool:
+                has_resources = False
+            else:
+                has_resources.append(ingredient)
+    return has_resources
+
+
+def insert_money(money):
+    """
+     Simulates inserting coins into the machine, adds up the total value,
+     and returns the total money inserted.
+
+     Args:
+         money (float): The current amount of money before inserting coins.
+
+     Returns:
+         float: The total money after adding the inserted coins.
+     """
+    money += int(input("How many quarters?: ")) * 0.25
+    money += int(input("How many dimes?: ")) * 0.1
+    money += int(input("How many nickles?: ")) * 0.05
+    money += int(input("How many pennies?: ")) * 0.01
+    return money
+
+def missing_ingredients_enum(missing_resources):
+    """
+    Prints a message indicating which ingredients are missing based on the
+    missing_resources list.
+
+    Args:
+        missing_resources (list): A list of missing ingredients.
+
+    Returns:
+        None
+    """
+    if len(missing_resources) == 1:
+        print(f"Sorry there is not enough {missing_resources[0]}.\n")
+    elif len(missing_resources) == 2:
+        print(f"Sorry there is not enough {missing_resources[0]} and {missing_resources[1]}.\n")
+    else:
+        print(f"Sorry there is not enough {missing_resources[0]}, {missing_resources[1]} and {missing_resources[2]}.\n")
+
+def sell_coffee(coffee_type):
+    """
+    Simulates the process of selling a coffee: asks the user to insert money,
+    checks if enough money was inserted, and returns the amount gained. It also
+    deducts ingredients from the machine and gives change if needed.
+
+    Args:
+        coffee_type (str): The type of coffee being sold ("espresso", "latte", or "cappucino").
+
+    Returns:
+        float: The total profit from selling the coffee.
+    """
+    gain = 0
+    money_inserted = 0
+    print("Please insert coins.")
+    money_inserted = insert_money(money_inserted)
+    print(f"Money inserted: ${money_inserted}.")
+    if money_inserted >= order_price(coffee_type):
+        change = money_inserted - order_price(coffee_type)
+        gain = order_price(coffee_type)
+        if change > 0:
+            print(f"Here is ${change:.2f} dollars in change.\n")
+        deduct_resources(coffee_type)
+        print(f"Here is your {coffee_type}. Enjoy!\n")
+        return gain
+    else:
+        print("Sorry that's not enough money. Money refunded.\n")
+        return gain
+
+
+
+espresso_ingredients = MENU["espresso"]["ingredients"]
+latte_ingredients = MENU["latte"]["ingredients"]
+cappucino_ingredients = MENU["cappucino"]["ingredients"]
+profit = machine_resources["money"]
+is_power_on = True
+has_enough_resources = True
+missing_ingredients = []
+
+while is_power_on:
+    order = input("What would you like? (espresso/latte/cappucino): ")
+
+    if order == "espresso":
+        has_enough_resources = ingredients_missing(espresso_ingredients, has_enough_resources)
+        if has_enough_resources:
+            profit += sell_coffee(order)
+        else:
+            missing_ingredients = ingredients_missing(espresso_ingredients, missing_ingredients)
+            missing_ingredients_enum(missing_ingredients)
+
+    elif order == "latte":
+        has_enough_resources = ingredients_missing(latte_ingredients, has_enough_resources)
+        if has_enough_resources:
+            profit += sell_coffee(order)
+        else:
+            missing_ingredients = ingredients_missing(latte_ingredients, missing_ingredients)
+            missing_ingredients_enum(missing_ingredients)
+
+    elif order == "cappucino":
+        has_enough_resources = ingredients_missing(cappucino_ingredients, has_enough_resources)
+        if has_enough_resources:
+            profit += sell_coffee(order)
+        else:
+            missing_ingredients = ingredients_missing(cappucino_ingredients, missing_ingredients)
+            missing_ingredients_enum(missing_ingredients)
+
+    elif order == "report":
+        display_resources()
+
+    elif order == "off":
+        print("Shutting Down...")
+        is_power_on = False
+
+    else:
+        print("Invalid input. Please try again.")
