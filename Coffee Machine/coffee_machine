@@ -14,13 +14,54 @@ def deduct_resources(order):
         machine_resources[ingredient] -= MENU[order]["ingredients"][ingredient]
 
 
-def check_quantity(coffee_type, has_resources):
-    has_resources = True
+def ingredients_missing(coffee_type, has_resources):
+    if type(has_resources) is bool:
+        has_resources = True
+    else:
+        has_resources = []
     for ingredient in coffee_type:
         if machine_resources[ingredient] < coffee_type[ingredient]:
-            has_resources = False
-            return has_resources
+            if type(has_resources) is bool:
+                has_resources = False
+            else:
+                has_resources.append(ingredient)
     return has_resources
+
+
+def insert_money(money):
+    money += int(input("How many quarters?: ")) * 0.25
+    money += int(input("How many dimes?: ")) * 0.1
+    money += int(input("How many nickles?: ")) * 0.05
+    money += int(input("How many pennies?: ")) * 0.01
+    return money
+
+def missing_ingredients_enum(missing_resources):
+    if len(missing_resources) == 1:
+        print(f"Sorry there is not enough {missing_resources[0]}.\n")
+    elif len(missing_resources) == 2:
+        print(f"Sorry there is not enough {missing_resources[0]} and {missing_resources[1]}.\n")
+    else:
+        print(f"Sorry there is not enough {missing_resources[0]}, {missing_resources[1]} and {missing_resources[2]}.\n")
+
+def sell_coffee(coffee_type):
+    gain = 0
+    money_inserted = 0
+    print("Please insert coins.")
+    money_inserted = insert_money(money_inserted)
+    print(f"Money inserted: ${money_inserted}.")
+    if money_inserted >= order_price(coffee_type):
+        change = money_inserted - order_price(coffee_type)
+        gain = order_price(coffee_type)
+        if change > 0:
+            print(f"Here is ${change:.2f} dollars in change.\n")
+        deduct_resources(coffee_type)
+        print(f"Here is your {coffee_type}. Enjoy!\n")
+        return gain
+    else:
+        print("Sorry that's not enough money. Money refunded.\n")
+        return gain
+
+
 
 espresso_ingredients = MENU["espresso"]["ingredients"]
 latte_ingredients = MENU["latte"]["ingredients"]
@@ -28,85 +69,41 @@ cappucino_ingredients = MENU["cappucino"]["ingredients"]
 profit = machine_resources["money"]
 is_power_on = True
 has_enough_resources = True
-money_inserted = 0
-change = 0
+missing_ingredients = []
 
 while is_power_on:
     order = input("What would you like? (espresso/latte/cappucino): ")
 
     if order == "espresso":
-        has_enough_resources = check_quantity(espresso_ingredients, has_enough_resources)
+        has_enough_resources = ingredients_missing(espresso_ingredients, has_enough_resources)
         if has_enough_resources:
-            print("Please insert coins.")
-            money_inserted += int(input("How many quarters?: ")) * 0.25
-            money_inserted += int(input("How many dimes?: ")) * 0.1
-            money_inserted += int(input("How many nickles?: ")) * 0.05
-            money_inserted += int(input("How many pennies?: ")) * 0.01
-            print(f"Money inserted: ${money_inserted}.")
-            if money_inserted >= order_price(order):
-                change = money_inserted - order_price(order)
-                profit += order_price(order)
-                if change > 0:
-                    print(f"Here is ${change:.2f} dollars in change.\n")
-                    money_inserted = 0
-                deduct_resources(order)
-                print(f"Here is your {order}. Enjoy!\n")
-            else:
-                print("Sorry that's not enough money. Money refunded.\n")
-                money_inserted = 0
+            profit += sell_coffee(order)
         else:
-            print("Sorry there are not enough ingredients.")
+            missing_ingredients = ingredients_missing(espresso_ingredients, missing_ingredients)
+            missing_ingredients_enum(missing_ingredients)
 
     elif order == "latte":
-        has_enough_resources = check_quantity(latte_ingredients, has_enough_resources)
+        has_enough_resources = ingredients_missing(latte_ingredients, has_enough_resources)
         if has_enough_resources:
-            print("Please insert coins.")
-            money_inserted += int(input("How many quarters?: ")) * 0.25
-            money_inserted += int(input("How many dimes? :")) * 0.1
-            money_inserted += int(input("How many nickles?: ")) * 0.05
-            money_inserted += int(input("How many pennies?: ")) * 0.01
-            print(f"Money inserted: ${money_inserted}.")
-            if money_inserted >= order_price(order):
-                change = money_inserted - order_price(order)
-                profit += order_price(order)
-                if change > 0:
-                    print(f"Here is ${change:.2f} dollars in change.\n")
-                    money_inserted = 0
-                deduct_resources(order)
-                print(f"Here is your {order}. Enjoy!\n")
-            else:
-                print("Sorry that's not enough money. Money refunded.\n")
-                money_inserted = 0
+            profit += sell_coffee(order)
         else:
-            print("Sorry there are not enough ingredients.")
+            missing_ingredients = ingredients_missing(latte_ingredients, missing_ingredients)
+            missing_ingredients_enum(missing_ingredients)
 
     elif order == "cappucino":
-        has_enough_resources = check_quantity(cappucino_ingredients, has_enough_resources)
+        has_enough_resources = ingredients_missing(cappucino_ingredients, has_enough_resources)
         if has_enough_resources:
-            print("Please insert coins.")
-            money_inserted += int(input("How many quarters?: ")) * 0.25
-            money_inserted += int(input("How many dimes? :")) * 0.1
-            money_inserted += int(input("How many nickles?: ")) * 0.05
-            money_inserted += int(input("How many pennies?: ")) * 0.01
-            print(f"Money inserted: ${money_inserted}.")
-            if money_inserted >= order_price(order):
-                change = money_inserted - order_price(order)
-                profit += order_price(order)
-                if change > 0:
-                    print(f"Here is ${change:.2f} dollars in change.\n")
-                    money_inserted = 0
-                deduct_resources(order)
-                print(f"Here is your {order}. Enjoy!\n")
-            else:
-                print("Sorry that's not enough money. Money refunded.\n")
-                money_inserted = 0
+            profit += sell_coffee(order)
         else:
-            print("Sorry there are not enough ingredients.")
+            missing_ingredients = ingredients_missing(cappucino_ingredients, missing_ingredients)
+            missing_ingredients_enum(missing_ingredients)
 
     elif order == "report":
         display_resources()
+
     elif order == "off":
         print("Shutting Down...")
         is_power_on = False
+
     else:
         print("Invalid input. Please try again.")
