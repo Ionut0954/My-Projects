@@ -18,6 +18,11 @@ while len(guessed_counties) < len(all_counties):
     print(answer)
 
     if answer == "Exit":
+        for county in all_counties:
+            if county not in guessed_counties:
+                counties_to_learn.append(county)
+        missing_counties = pandas.DataFrame(counties_to_learn)
+        missing_counties.to_csv("missing_counties.csv")
         break
 
     if answer in all_counties and answer not in guessed_counties:
@@ -36,11 +41,5 @@ while len(guessed_counties) < len(all_counties):
         message_turtle.goto(0, 300)
         message_turtle.write("Well done! You've named all the counties!", align="center", font=("Arial", 16, "bold"))
 
-for county in all_counties:
-    if county not in guessed_counties:
-        counties_to_learn.append(county)
-
-missing_counties = pandas.DataFrame(counties_to_learn)
-missing_counties.to_csv("missing_counties.csv")
 
 screen.exitonclick()
