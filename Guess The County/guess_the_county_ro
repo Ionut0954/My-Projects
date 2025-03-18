@@ -10,7 +10,6 @@ turtle.shape(image)
 data = pandas.read_csv("41_counties.csv")
 all_counties = data.county.to_list()
 guessed_counties = []
-counties_to_learn = []
 
 while len(guessed_counties) < len(all_counties):
     answer = screen.textinput(title=f"{len(guessed_counties)}/41 Counties Correct",
@@ -18,9 +17,7 @@ while len(guessed_counties) < len(all_counties):
     print(answer)
 
     if answer == "Exit":
-        for county in all_counties:
-            if county not in guessed_counties:
-                counties_to_learn.append(county)
+        counties_to_learn = [county for county in all_counties if county not in guessed_counties]
         missing_counties = pandas.DataFrame(counties_to_learn)
         missing_counties.to_csv("missing_counties.csv")
         break
